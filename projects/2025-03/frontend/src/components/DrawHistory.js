@@ -11,7 +11,7 @@ const DrawHistory = ({ totalDraws, totalRewards }) => {
         </div>
         <div className="stat-item">
           <h4>总奖励</h4>
-          <p>{totalRewards} TRI</p>
+          <p>{totalRewards} ETH</p>
         </div>
       </div>
     </div>

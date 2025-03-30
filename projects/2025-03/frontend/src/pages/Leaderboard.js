@@ -31,7 +31,7 @@ function Leaderboard() {
                       <th scope="col">#</th>
                       <th scope="col">钱包地址</th>
                       <th scope="col">总抽卡次数</th>
-                      <th scope="col">总奖励 (TRI)</th>
+                      <th scope="col">总奖励 (ETH)</th>
                     </tr>
                   </thead>
                   <tbody>

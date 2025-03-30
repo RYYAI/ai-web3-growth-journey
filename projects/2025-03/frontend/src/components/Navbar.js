@@ -37,7 +37,7 @@ function Navbar() {
             {account ? (
               <>
                 <span className="badge bg-success me-2">已连接</span>
-                <span className="me-3">TRI: {parseFloat(balance).toFixed(2)}</span>
+                <span className="me-3">ETH: {parseFloat(balance).toFixed(2)}</span>
                 <small className="text-muted">{account.substring(0, 6)}...{account.substring(account.length - 4)}</small>
               </>
             ) : (

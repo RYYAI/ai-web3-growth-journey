@@ -180,7 +180,7 @@ function Profile() {
                       <div className="card h-100">
                         <div className="card-body text-center">
                           <h5 className="card-title">总奖励</h5>
-                          <p className="card-text display-4">{parseFloat(userHistory.totalRewards).toFixed(2)} TRI</p>
+                          <p className="card-text display-4">{parseFloat(userHistory.totalRewards).toFixed(2)} ETH</p>
                         </div>
                       </div>
                     </div>

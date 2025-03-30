@@ -14,7 +14,7 @@ function Home() {
           <div className="card bg-dark text-white mb-4">
             <div className="card-body p-5">
               <h2 className="mb-3">游戏规则</h2>
-              <p>1. 使用TRI代币抽取卡牌</p>
+              <p>1. 使用ETH代币抽取卡牌</p>
               <p>2. 抽取三张相同的卡牌获得奖励</p>
               <p>3. 卡牌稀有度不同，奖励倍数也不同</p>
               <p>4. 传说级卡牌三连可额外获得奖池奖励</p>
