@@ -10,6 +10,17 @@ const shortenAddress = (address) => {
   return address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : '';
 };
 
+// 根据稀有度获取样式类
+const getRarityClass = (rarity) => {
+  switch(rarity.toLowerCase()) {
+    case 'legendary': return 'rarity-legendary';
+    case 'epic': return 'rarity-epic';
+    case 'rare': return 'rarity-rare';
+    case 'uncommon': return 'rarity-uncommon';
+    default: return 'rarity-common';
+  }
+};
+
 // 导入示例卡牌背景图
 const cardBackImage = require('../images/1.png');
 
@@ -133,14 +144,32 @@ const DrawGame = () => {
       let reward = 0;
       const cardTypes = randomCards.map(card => card.rarity);
       // 检查是否有三张相同稀有度的卡片
-      const hasTriplet = Object.values(cardTypes.reduce((acc, curr) => {
+      const rarityCounts = cardTypes.reduce((acc, curr) => {
         acc[curr] = (acc[curr] || 0) + 1;
         return acc;
-      }, {})).some(count => count >= 3);
+      }, {});
+      
+      const hasTriplet = Object.values(rarityCounts).some(count => count >= 3);
+      const matchedRarity = hasTriplet ? Object.keys(rarityCounts).find(rarity => rarityCounts[rarity] >= 3) : null;
       
       if (hasTriplet) {
-        reward = (Math.random() * 0.1 + 0.05).toFixed(4); // 随机0.05-0.15 ETH的奖励
-        alert(`恭喜您抽到了三张相同稀有度的卡片！获得${reward} ETH奖励！`);
+        // 根据稀有度决定奖励金额
+        const rarityMultipliers = {
+          "Common": 0.05,
+          "Uncommon": 0.08,
+          "Rare": 0.12,
+          "Epic": 0.2,
+          "Legendary": 0.3
+        };
+        
+        const baseReward = rarityMultipliers[matchedRarity] || 0.05;
+        reward = (baseReward + Math.random() * 0.05).toFixed(4); // 带有小浮动的奖励
+        
+        // 显示特殊效果
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000); // 5秒后关闭
+        
+        alert(`恭喜您抽到了三张${matchedRarity}稀有度的卡片！\n\n获得 ${reward} ETH 奖励！`);
       }
       
       // 更新卡片历史
@@ -154,13 +183,16 @@ const DrawGame = () => {
       // 设置最新抽到的卡片
       setLastDrawnCard(randomCards[0]);
       
-      // 卡片动画完成后重置状态
+      // 卡片动画完成后重置状态 - 缩短动画时间
       setTimeout(() => {
         setIsCardAnimating(false);
-      }, 1500);
+        setIsDrawing(false); // 确保抽卡状态也被重置，允许再次抽卡
+        console.log("动画完成，抽卡按钮已解锁");
+      }, 800); // 从1500ms缩短到800ms
     } catch (error) {
       console.error("抽卡失败:", error);
       alert("抽卡过程中出现错误，请重试");
+      // 立即重置所有状态，允许再次抽卡
       setIsDrawing(false);
       setIsCardAnimating(false);
     }
@@ -169,6 +201,12 @@ const DrawGame = () => {
     // 随机设置抽卡价格和奖池
     setDrawPrice((Math.random() * 0.01 + 0.01).toFixed(4));
     setJackpot((Math.random() * 1 + 0.5).toFixed(4));
+    console.log("抽卡完成，可再次抽卡");
+    
+    // 更新余额 - 模拟花费ETH
+    if (account) {
+      updateBalance();
+    }
   };
   
   return (
@@ -194,7 +232,7 @@ const DrawGame = () => {
       
       <div className="card-section">
         <div className="current-cards">
-          <h2>您的最近三张卡</h2>
+          <h2>您的最近三张卡牌</h2>
           <div className="card-row">
             {userHistory.lastCards.map((card, index) => (
               <div key={index} className="card-container">
@@ -226,22 +264,8 @@ const DrawGame = () => {
                   <img src={cardBackImage} alt="Card Back" className="card-image" />
                 </div>
                 <div className="card-back">
-                  <h4>抽取中...</h4>
+                  <h4>正在抽取三张卡牌...</h4>
                 </div>
-              </div>
-            </div>
-          ) : lastDrawnCard ? (
-            <div className="card-container">
-              <div className="card">
-                <h4>{lastDrawnCard.name}</h4>
-                <p className={`rarity-${lastDrawnCard.rarity.toLowerCase()}`}>{lastDrawnCard.rarity}</p>
-                <img 
-                  src={require(`../images/${lastDrawnCard.imageId}.png`)} 
-                  alt={lastDrawnCard.name} 
-                  className="card-image" 
-                />
-                <p>{lastDrawnCard.description}</p>
-                <p>点数: {lastDrawnCard.points}</p>
               </div>
             </div>
           ) : (
@@ -264,8 +288,13 @@ const DrawGame = () => {
           className="draw-button" 
           onClick={handleDraw} 
           disabled={isDrawing}
+          style={{ 
+            opacity: isDrawing ? 0.7 : 1,
+            cursor: isDrawing ? 'not-allowed' : 'pointer',
+            transition: 'all 0.3s ease' 
+          }}
         >
-          {isDrawing ? "抽卡中..." : "抽卡"}
+          {isDrawing ? "抽卡中..." : userHistory.totalDraws > 0 ? "再次抽卡" : "开始抽卡"}
         </button>
       </div>
       
